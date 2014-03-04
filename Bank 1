@@ -1,0 +1,936 @@
+Enter file contents here#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <string.h>
+#include<cctype>
+#include<iomanip>
+#include <string>
+
+
+
+using namespace std;
+
+const int array_size = 1000;
+
+
+
+string Name[array_size];
+const int Array_size=1000;
+
+//***************************************************************
+//                   STRUCT USED IN PROJECT
+//****************************************************************
+class Account
+{
+public :
+	int id;
+	char name[40];
+	string type;
+
+} ;
+
+class Transaction 
+{
+public:
+	int account_id;
+	int amount;
+	char date[11];
+	
+} ;
+
+class listType 
+{
+public:
+
+	Transaction*listelem;
+	listelem=new Transaction[array_size];
+
+   // Transaction listelem[Array_size];
+    int listLength;
+
+    int totalForDay ( const char* day);
+    int totalDeposit( const char* day);
+    int totalwithdraw( const char* day);
+	int totalmoney( );
+	void writeToFile(const char* filename);
+	void ReadFromFile(const char* filename);
+	void ReadDepositFromFile(const char* filename);
+	void ReadwithdrawFromFile (const char* filename) ;
+	int accountBalance(int account_id);
+    void deposit( int account_id , int amount);
+	void  withdraw( int account_id , int amount);
+};
+
+
+
+
+class AccountList : public listType
+{    
+public :
+	Account listelem[Array_size];
+	int listLength;
+	
+	void writeToACFile(const char* filename);
+	void ReadFromACFile(const char* filename);
+	int delete_Account(  int account_id);
+	void create_account();
+};
+
+
+
+
+
+// FUNCTION TO GET TOTAL AMOUNT IN A DAY
+
+int listType:: totalForDay (const char* day)
+{ 
+	this->listelem;
+
+	int total = 0;
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+
+	if (0==strcmp(day,this->listelem[i].date))
+	{
+
+	total +=this->listelem[i].amount;
+	}
+	
+
+	}
+	
+	return total;
+}
+
+// FUNCTION TO GET TOTAL DEPOSIT
+
+int listType::totalDeposit( const char* day)
+{
+
+
+	int total = 0;
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+	if (0==strcmp(day,this->listelem[i].date))
+	{
+		if(this->listelem[i].amount>=1)
+		{
+
+	total +=this->listelem[i].amount;
+		}
+
+	}
+
+
+
+	}
+	
+	return total;
+
+}
+
+// FUNCTION TO GET TOTAL WITHDRAWALS
+int listType:: totalwithdraw( const char* day)
+{
+
+
+	int total = 0;
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+
+	if (0==strcmp(day,this->listelem[i].date))
+	{
+		if(this->listelem[i].amount<=-1)
+		{
+
+	total +=this->listelem[i].amount;
+        }
+    }
+
+    }
+	
+	
+	return total;
+}
+
+// FUNCTION TO GET TOTAL MONEY IN THE BANK
+
+int listType:: totalmoney()
+{
+	
+	int total = 0;
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+		
+	total +=this->listelem[i].amount;	
+
+	}
+
+	return total;
+}
+
+// FUNCTION TO WRITE TO THE TRANSACTION.TXT FILE
+
+ void listType :: writeToFile(const char* filename)
+{
+	ofstream outfile;
+	outfile.open(filename);
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+outfile<< " " << this->listelem[i].account_id << " " << this->listelem[i].amount <<" " << this->listelem[i].date <<  endl;
+
+	}
+
+	outfile.close();
+}
+
+
+ // FUNCTION TO READ THE TRANSACTION.TXT FILE
+
+void listType:: ReadFromFile(const char* filename)
+
+{
+	ifstream infile;
+
+	infile.open(filename);
+
+	this->listLength=0;
+for ( int i = 0; infile; ++ i) 
+
+	{
+	    this->listLength=i;
+		infile >> this->listelem[this->listLength].account_id;
+		infile >>  this->listelem[this->listLength].amount;
+		infile >> this->listelem[this->listLength].date;
+	}
+
+	infile.close();
+
+}
+
+// FUNCTION TO WRITE TO ACCOUNT.TXT FILE
+
+void AccountList  :: writeToACFile( const char* filename)
+{
+	ofstream outfile;
+
+	outfile.open(filename);
+		for (int i = 0; i <this->listLength; ++i) 
+	{
+outfile << " " <<  this->listelem[i].id << " " <<  this->listelem[i].name << " " << this->listelem[i].type <<endl;
+
+	}
+
+outfile.close();
+}
+
+// FUNCTION TO READ FROM ACCOUNT.TXT FILE
+
+ void AccountList:: ReadFromACFile(const char* filename)
+{
+	ifstream infile;
+	this->listLength=0;
+	infile.open(filename);
+
+
+	for ( int i = 0; infile; ++ i) 
+
+	{
+	    this->listLength=i;
+		infile >> this->listelem[this->listLength].id;
+		infile >>  this->listelem[this->listLength].name;
+		infile >> this->listelem[this->listLength].type;
+		
+		
+	}
+
+	infile.close();
+
+}
+
+
+
+// FUNCTION TO READ DEPOSIT FROM THE FILE
+
+void listType:: ReadDepositFromFile(const char* filename)
+
+{   ifstream infile;
+	this->listLength=0;
+	infile.open(filename);
+
+	for ( int i = 0; infile && i<Array_size;) 
+
+	{ 
+		this->listLength=i;
+	    infile >> this->listelem[i].account_id;
+		infile >>  this->listelem[i].amount;
+		infile >> this->listelem[i].date; 
+
+	if (this->listelem[i].amount >=1)
+	{
+		++i;
+
+		
+	}
+
+
+
+  }
+
+}
+
+// FUNCTION TO READ WITHDRAWALS FROM FILE
+
+void listType::ReadwithdrawFromFile (const char* filename) 
+{
+	ifstream infile;
+	this->listLength=0;
+
+	infile.open(filename);
+
+	for ( int i = 0; infile && i<Array_size;) 
+
+	{ 
+		this->listLength=i;
+	    infile >> this->listelem[i].account_id;
+		infile >>  this->listelem[i].amount;
+		infile >> this->listelem[i].date; 
+
+	if (this->listelem[i].amount<=-1)
+	{
+		++i;	
+	}
+
+  }
+
+}
+// FUNCTION TO GET ACCOUNT BALANCE
+
+int listType:: accountBalance(int account_id)
+
+{ Transaction ac;
+
+
+	int total = 0;
+
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+	
+		if(account_id==this->listelem[i].account_id)
+		{	
+	total +=this->listelem[i].amount;	
+		}
+	}
+	return total;
+	
+}
+
+// FUNCTION TO GET DEPOSITS
+
+void listType:: deposit( int account_id , int amount)
+
+{ 
+
+	this->listelem[this->listLength].amount = amount;
+	this->listelem[this->listLength].account_id= account_id;
+	this->listLength++;
+}
+
+
+// FUNCTION TO GET WITHDRAWALS
+void listType:: withdraw( int account_id , int amount)
+
+{
+	this->listelem[this->listLength].amount = -amount;
+	this->listelem[this->listLength].account_id= account_id;
+	this->listLength++;
+
+}
+
+
+// TO DELETE ACCOUNT
+int AccountList:: delete_Account(  int account_id)
+
+{ 
+	for (int i = 0; i < this->listLength; ++i) 
+	{
+ 		if(account_id==this->listelem[i].id)
+		{
+	 for (;i< this->listLength-1; ++i)
+	 {
+		 this->listelem[i].id = this->listelem[i+1].id ; 
+
+		strcpy_s (this->listelem[i].name, this->listelem[i+1].name);
+	 }
+	 this->listLength--;
+
+		return 1;
+	
+		} 
+
+		if (account_id==this->listelem[i].id)
+		{
+			cout << "The id is not in the file ";
+		}
+	
+	}
+
+	return 0;
+
+}
+
+
+// TO DIPLAY THE INTRO 
+void intro()
+{
+cout<<"\n\n\n\t   BANK ";
+cout<<"\n\n\t         OF   ";
+cout<<"\n\n\t            AMERICA";
+
+cin.get();
+}
+
+
+// TO CREATE AN ACCOUNT
+void AccountList:: create_account()
+{ 
+	int amount;
+	AccountList Accounts;
+	listType transactions;
+	
+ReadFromACFile("account.txt");
+
+cout<<"\nEnter The account No. :";
+
+cin>>  Accounts.listelem[Accounts.listLength].id ;
+
+int Account_id=Accounts.listelem[Accounts.listLength].id;
+
+cout<<"\n\nEnter The Name of The account Holder : ";
+
+cin.ignore();
+
+cin.getline(Accounts.listelem[Accounts.listLength].name,50);
+
+cout << "\n Enter The type of the account " ;
+
+cout << "[ 'S' for saving , 'C' for Checking , 'CC' for Credit Card ]";
+
+cout << " " ;
+
+cin >> Accounts.listelem[Accounts.listLength].type;
+
+Accounts.listLength++;
+
+writeToACFile("account.txt");
+
+transactions.ReadFromFile("transaction.txt");
+
+cout << "Enter The date ";
+
+cin >> transactions.listelem[transactions.listLength].date;
+
+cout<<"\nEnter The Initial amount : ";
+
+cin>> amount ; 
+
+deposit(Account_id,amount);
+
+writeToFile("transaction.txt") ;
+
+cout<<"\n\n\nAccount Created..";
+
+}
+
+
+
+
+// TO SEARCH THE NAME FROM FILE
+int customerName  (int count, string customer)
+
+{ 
+int a;
+int customercount = 0;
+
+for (a = 0; a <= count; a++)
+{
+if (Name[a].find(customer) != string::npos)
+{cout  << "( " << Name[a] << ")" << endl;
+customercount++;
+
+}
+}
+cout << customercount << " records found." << endl;
+
+return 0;
+
+}
+// TO LOAD THE DATA FROM THE FILE
+int loadData(string pathname)
+{
+ifstream libraryFile;
+int Count = 0;
+
+libraryFile.open(pathname.c_str());
+{
+if ( ! libraryFile.is_open())
+return -1;
+
+
+while (!libraryFile.eof())
+{
+getline(libraryFile, Name[Count], '\n');
+
+Count++;
+
+if (!libraryFile)
+break;
+} 
+
+for (int edit = 0; edit < Count; edit++)
+{
+Name[edit].erase(static_cast<unsigned> (Name[edit].length()) );
+
+}
+
+
+return Count;
+
+}
+}
+
+/*void printTransaction(listType&transactions)
+
+{
+	Transaction t;
+	t.ReadDepositFromFile("transaction.txt",transactions);
+
+	for ( int i=0; i<transactions.listLength; i++)
+	{
+cout <<  transactions.listelem[i].account_id << " "<< transactions.listelem[i].amount << " " <<  transactions.listelem[i].date << endl;
+        
+	}
+
+}
+*/
+
+// CUSTOMER INTERFACE 
+int customer_interface()
+{
+char ch;
+int num;
+listType transactions;
+int amount;
+
+
+
+
+do{
+	system("cls");
+cout<<"\n\n\n\tMAIN MENU";
+cout<<"\n\n\t01. DEPOSIT AMOUNT";
+cout<<"\n\n\t02. WITHDRAW AMOUNT";
+cout<<"\n\n\t03. BALANCE ENQUIRY";
+cout <<"\n\n\t04. TRANSFER FUNDS";
+cout<<"\n\n\t05. EXIT";
+cout << endl;
+cin >> ch;
+
+
+system("cls");
+switch(ch)
+{
+case '1':
+
+transactions.ReadFromFile("transaction.txt" );
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions. listelem[transactions.listLength].date;
+cout << "\n\n\t Enter The Amount:"; cin >> amount;
+cout << "\n\n\tAccount Updated " << endl;
+transactions.deposit( num, amount);
+transactions.writeToFile("transaction.txt");
+
+break;
+
+case '2':
+
+transactions.ReadFromFile ("transaction.txt");
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions.listelem[transactions.listLength].date;
+cout << "\n\n\t Enter The Amount to withdraw : "; cin >> amount;
+transactions.withdraw( num, amount);
+cout << " Account updates " ;
+transactions.writeToFile("transaction.txt");
+break;
+
+case '3': 
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+transactions.ReadFromFile ("transaction.txt");//, transactions);
+transactions.accountBalance(num);
+cout << " You Account No " << num << " Balance is " << transactions.accountBalance( num);
+break;
+
+
+case '4' :
+
+transactions.ReadFromFile( "transaction.txt");
+cout << " To Transfer Money Enter your account number and amount  " << endl;
+cin >> num ;
+cout << "Date " ; cin >> transactions.listelem[transactions.listLength].date;
+cout << "Amount "; cin >> amount;
+transactions.withdraw( num, amount);
+cout << " Enter the receivers account id" << endl;
+cin >> num;
+cout << "Enter the date again " ; cin >> transactions.listelem[transactions.listLength].date;
+transactions.deposit( num, amount);
+
+cout << "TRANSFERED TO " << num << endl;
+transactions.writeToFile("transaction.txt");
+break;
+
+case '5':
+cout<<"\n\n\tThanks ";
+return 0;
+break;
+
+default : cout<< "\a";
+}
+cin.ignore();
+cin.get();
+}
+while (ch!=5);
+
+return 0;
+
+}
+
+// EMPLOYEE INTERFACE
+int employee()
+{ char ch ;
+int num;
+int amount;
+string name;
+int recordsRead;
+listType transactions;
+AccountList Accounts; 
+Transaction t;
+
+	
+do
+{
+	system("cls");
+cout<<"\n\n\n\tMAIN MENU";
+cout<<"\n\n\t01. DEPOSIT AMOUNT";
+cout<<"\n\n\t02. WITHDRAW AMOUNT";
+cout<<"\n\n\t03. BALANCE ENQUIRY";
+cout <<"\n\n\t04.TRANSFER Funds";
+cout <<"\n\n\t05. NEW ACCOUNT";
+cout<<"\n\n\t06. CLOSE AN ACCOUNT";
+cout <<"\n\n\t07.SEARCH THE NAME " ;
+cout<<"\n\n\t08. EXIT";
+cin >> ch;
+
+
+system("cls");
+
+switch(ch)
+{
+case '1':
+transactions.ReadFromFile("transaction.txt" );
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions.listelem[transactions.listLength].date;
+cout << " Enter The Amount:"; cin >> amount;
+transactions.deposit( num, amount);
+transactions.writeToFile("transaction.txt");
+break;
+
+case '2':
+
+transactions.ReadFromFile ("transaction.txt");
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions.listelem[transactions.listLength].date;
+cout << "\n\n\t Enter The Amount to withdraw : "; cin >> amount;
+transactions.withdraw( num, amount);
+transactions. writeToFile("transaction.txt");
+break;
+
+case '3': 
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+transactions.ReadFromFile ("transaction.txt");
+transactions.accountBalance( num);
+cout << " You Account No " << num << " Balance is " << transactions.accountBalance( num);
+break;
+
+
+case '4' :
+
+transactions.ReadFromFile( "transaction.txt");
+cout << " To Transfer Money Enter your account number and amount  " << endl;
+cin >> num ;
+cout << "Date " ; cin >> transactions.listelem[transactions.listLength].date;
+cout << "Amount "; cin >> amount;
+transactions.withdraw( num, amount);
+cout << " Enter the receivers account id" << endl;
+cin >> num;
+cout << "Enter the date again " ; cin >> transactions.listelem[transactions.listLength].date;
+transactions.deposit( num, amount);
+transactions. writeToFile("transaction.txt");
+break;
+
+case '5': 
+	Accounts.create_account();
+	break;
+
+case'6':
+cout << "Enter The Account number : " ; cin >> num;
+Accounts.ReadFromACFile("account.txt");
+Accounts.delete_Account(num);
+Accounts.writeToACFile("account.txt");
+cout << "Record Deleted"<< endl;
+break;
+
+case '7':
+cout << "Search customer by name:" << endl;
+cout << "Enter The Name" << endl;
+cin >> name;
+recordsRead = loadData( "account.txt");
+customerName(recordsRead,name);
+break;
+case '9' :
+cout << " Total Number Of Customer is :" << endl;
+recordsRead = loadData( "account.txt");
+cout << recordsRead-1;
+break;
+
+case '8':
+cout<<"\n\n\tThanks ";
+return 0;
+break;
+default :cout<<"\a";
+
+}
+cin.ignore();
+cin.get();
+}
+while (ch!=8);
+return 0;
+}
+// MANAGER INTERFACE
+int manager_interface()
+{
+
+	char ch ;
+int num;
+int amount;
+string name;
+int recordsRead;
+listType transactions;
+AccountList Accounts; 
+char date[9];
+
+do{
+	system("cls");
+
+cout<<"\n\n\n\tMAIN MENU";
+cout<<"\n\n\t A. DEPOSIT AMOUNT";
+cout<<"\n\n\t B. WITHDRAW AMOUNT";
+cout<<"\n\n\t C. BALANCE ENQUIRY";
+cout<<"\n\n\t D. TRANSFER Funds";
+cout<<"\n\n\t E. NEW ACCOUNT";
+cout<<"\n\n\t F. CLOSE AN ACCOUNT";
+cout<<"\n\n\t G. SEARCH ThE NAME" ;
+cout<<"\n\n\t H  TOTAL CUSTOMER";
+cout<<"\n\n\t I. TOTAL MONEY IN THE BANK  ";
+cout<<"\n\n\t J. TOTAL DEPOSIT IN THE DAY";
+cout<<"\n\n\t K.TOTAL WITHDRAWALS IN THE DAY ";
+cout<<"\n\n\t L . LOG of ALL TRANSACTIONS";
+cout<<"\n\n\t M. EXIT";
+cin >> ch;
+system("cls");
+
+
+switch(ch)
+{
+case 'A':
+
+transactions.ReadFromFile("transaction.txt");
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions.listelem[transactions.listLength].date;
+cout << " Enter The Amount:"; cin >> amount;
+transactions.deposit( num, amount);
+cout << "Account updated" ;
+transactions.writeToFile("transaction.txt");
+break;
+
+case 'B':
+
+transactions.ReadFromFile ("transaction.txt" );
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+cout << "\n\n\tEnter The Date : "; 
+cin >> transactions.listelem[transactions.listLength].date;
+cout << "\n\n\t Enter The Amount to withdraw : "; cin >> amount;
+transactions.withdraw( num, amount);
+cout << "Account updated";
+transactions.writeToFile("transaction.txt");
+break;
+
+case 'C': 
+cout<<"\n\n\tEnter The account No. : "; cin>>num;
+transactions.ReadFromFile ("transaction.txt");
+transactions.accountBalance( num);
+cout << " You Account No " << num << " Balance is " << transactions.accountBalance(num);
+break;
+
+
+case 'D' :
+
+transactions.ReadFromFile( "transaction.txt");
+cout << " To Transfer Money Enter your account number and amount  " << endl;
+cin >> num ;
+cout << "Date " ; cin >> transactions.listelem[transactions.listLength].date;
+cout << "Amount "; cin >> amount;
+transactions.withdraw( num, amount);
+cout << " Enter the receivers account id" << endl;
+cin >> num;
+cout << "Enter the date again " ; cin >> transactions.listelem[transactions.listLength].date;
+transactions.deposit( num, amount);
+
+cout << " Tranfered " << endl;
+transactions.writeToFile("transaction.txt");
+break;
+
+case 'E': 
+	Accounts.create_account();
+	break;
+
+case'F':
+cout << "Enter The Account number : " ; cin >> num;
+Accounts.ReadFromACFile("account.txt");
+Accounts.delete_Account(num);
+
+cout<< " Account deleted " ;
+Accounts.writeToACFile("account.txt");
+break;
+
+case 'G':
+cout << "Search customer by name:";
+cin >> name;
+recordsRead = loadData( "account.txt");
+customerName(recordsRead,name);
+break;
+case 'H' :
+cout << " Total Number Of Customer:" << endl;
+recordsRead = loadData( "account.txt");
+cout << recordsRead-1;
+break;
+
+
+case'I':
+	cout << "Total Money In the Bank" << endl;
+	transactions.ReadFromFile("transaction.txt");
+	transactions.totalmoney();
+	cout << " The Total Amount In the Bank Is: " <<  transactions.totalmoney();
+	break;
+
+case'J' : 
+	cout << " Total Deposit In the day " << endl;
+	cout <<" Enter the date to get the total deposit in a day " <<endl;
+	cin >> date;
+	transactions.ReadFromFile("transaction.txt");
+	transactions.totalDeposit(date);
+cout << transactions.totalDeposit(date);
+break;
+
+case'K' :
+	transactions.ReadFromFile("transaction.txt");
+
+	cout << " Total withdrawals In The Day " << endl;
+	cout <<" Enter the date to get the total deposit in a day " <<endl;
+	cin >> date;
+	transactions.totalwithdraw(date);
+	cout << transactions.totalwithdraw(date);
+	break;
+
+
+case'L' :
+	
+
+	cout << " LOG for deposit and withdrawals"  << endl;
+	Accounts.ReadFromACFile( "account.txt");
+
+	transactions.ReadFromFile("transaction.txt");
+
+
+	for (int i=0; i <transactions.listLength ; i++)
+	{
+
+
+		for (int a =0; a<Accounts.listLength; a++)
+		{
+if(Accounts.listelem[a].id==transactions.listelem[i].account_id)
+
+{                  
+cout << Accounts.listelem[a].name <<"    "   <<transactions.listelem[i].account_id << "         " << transactions.listelem[i].amount <<"           " << transactions.listelem[i].date <<  endl;
+}
+}
+		
+}
+	 
+break;
+
+case 'M':
+cout<<"\n\n\tThanks ";
+return 0;
+break;
+
+default :cout<<"\a";
+}
+cin.ignore();
+cin.get();
+}
+while (ch!='N');
+
+return 0;
+}
+
+
+int main()
+{
+	char choice;
+// DISPLAY THE INTO FUNCTION
+	intro();
+// TO CLEAR THE SCREEN
+	system("cls");
+	// ASK THE USER 
+cout << "Are You A : " << endl;
+cout << " C) Customer " << endl;
+cout << " E) Employee " << endl;
+cout << " M) Manager  " << endl;
+cin >> choice;
+ 
+if (choice=='C')
+{
+	customer_interface();
+}
+
+if( choice=='E')
+{
+	employee();
+}
+
+
+if ( choice=='M')
+{
+
+	manager_interface();
+
+}
+
+
+return 0;
+}
